@@ -34,24 +34,23 @@ class Banco:
         return self.empresas_terceirizadas.index(empresa)
 
     def abre_conta(self, cliente):
+        print(self.nome, ' abriu uma conta para ', cliente._nome)
         self._clientes.append(cliente)
 
     def deposita(self, cliente, valor):
         indice = self._clientes.index(cliente)
         self._clientes[indice].entra_dinheiro(valor)
 
-    def gera_cartao(self, cliente, limite):
-        cartao = CartaoDeCredito(cliente, limite)
-        print(f'Cartao de crédito criado com sucesso para {cliente._nome} com R${limite},00 de limite')
 
-    def __del__(self):
-        print(self.nome, 'foi apagado')
+    # Deixei como comentário pra não sair no output mas serve pra ver quando as classe são destruídas
+    # def __del__(self):
+        # print(self.nome, 'foi apagado')
 
-# Instanciando um Banco
+# Instanciando um Banco verdadeiro
 santander = Banco('Santander')
 
-# Testando o setter
-st1 = Banco('SantoAndre1ClonadoBangu')
+# Testando o setter com um banco falso mudando o nome pra um verdadeiro (ja cadastrado)
+st1 = Banco('SantoAndre1Clonado')
 st1.nome = 'Santander'
 
 
@@ -63,8 +62,9 @@ class LimpezaTerceirizada():
     def limpa(self):
         print(f'Estamos limpando o {self.empresa_contratante} por R${self.preco},00')
 
-    def __del__(self):
-        print('limpeza foi apagado')
+    # Deixei como comentário pra não sair no output mas serve pra ver quando as classe são destruídas
+    # def __del__(self):
+        # print('limpeza foi apagado')
 
 # Cria uma empresa de limpeza
 limpa_tudo = LimpezaTerceirizada('Banco Santander' ,5050)
@@ -94,15 +94,21 @@ class Cliente:
         self._extrato.append(valor)
 
     def extrato(self):
+        print('Extrato: ', end='')
         for i in self._extrato:
             if i > 0:
-                print(f'Depósito de {i}')
+                print(f'Depósito de {i}, ', end='')
             else:
-                print(f'Saque de {i}')
+                print(f'Saque de {i}, ' , end='')
         print(f'Saldo atual: {self._Cliente__saldo}')
 
-    def __del__(self):
-        print(f'cliente {self._nome} foi apagado')
+    def gera_cartao(self, limite):
+        self.cartao = CartaoDeCredito(self,limite)
+        print(f'Cartao de crédito criado com sucesso para {self._nome} com R${limite},00 de limite')
+
+    # Deixei como comentário pra não sair no output mas serve pra ver quando as classe são destruídas
+    # def __del__(self):
+        # print(f'cliente {self._nome} foi apagado')
 
 
 # Criei essa classe cartão de crédito para demonstrar a relação de composição entre
@@ -124,14 +130,32 @@ santander.abre_conta(joao)
 joao.confere()
 santander.deposita(joao, 5000)
 santander.deposita(joao, -4999)
-santander.gera_cartao(joao, 700)
+joao.gera_cartao(700)
 
 # Quando apagamos a instancia de santander da memória,
 # A limpeza_terceirizada e os cliente não foram apagados 
 # Antes do programa ser executado, como ocorreu com santander
+# del santander
 
-del santander
 joao.extrato()
 
 
+# Agora vou testar como funciona herança simples e 
+# Sobreescrição de métodos e atributo.
+
+# Agencia recebeu todos os métodos e atributos de Banco
+class Agencia(Banco):
+    def contrata(self, cliente):
+        print(cliente._nome, ' agora faz parte do quadro de funcionários ',self._nome)
+
+
+santander_ag_0001 = Agencia('Santander_ag_0001')
+santander_ag_0001.abre_conta(joao)
+santander_ag_0001.contrata(joao)
+
+# Testando se sobreescrever uma classe altera a original
+limpa_nada = LimpezaTerceirizada('Banco Santander' , 50)
+id2 = santander.contrata(limpa_nada)
+santander.empresas_terceirizadas[id2].limpa()
+# O método contrata() continua igual
 
